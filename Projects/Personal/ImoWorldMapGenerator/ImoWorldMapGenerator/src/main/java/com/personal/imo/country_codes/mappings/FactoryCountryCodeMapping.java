@@ -14,15 +14,17 @@ public final class FactoryCountryCodeMapping {
 		if (StringUtils.isNotBlank(line)) {
 
 			final String[] linePartArray = StringUtils.split(line, ':');
-			if (linePartArray.length == 2) {
+			if (linePartArray.length == 3) {
 
-				final String longCountryCode = linePartArray[0];
-				final String countryCode = linePartArray[1];
-				countryCodeMapping = newInstance(longCountryCode, countryCode);
+				final String countryName = linePartArray[0];
+				final String longCountryCode = linePartArray[1];
+				final String countryCode = linePartArray[2];
+				countryCodeMapping = newInstance(countryName, longCountryCode, countryCode);
 
 			} else {
 				countryCodeMapping = null;
 			}
+
 		} else {
 			countryCodeMapping = null;
 		}
@@ -30,8 +32,9 @@ public final class FactoryCountryCodeMapping {
 	}
 
 	public static CountryCodeMapping newInstance(
+			final String countryName,
 			final String longCountryCode,
 			final String countryCode) {
-		return new CountryCodeMapping(longCountryCode, countryCode);
+		return new CountryCodeMapping(countryName, longCountryCode, countryCode);
 	}
 }

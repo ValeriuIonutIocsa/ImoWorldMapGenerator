@@ -7,13 +7,16 @@ import com.utils.string.StrUtils;
 
 public class CountryCodeMapping {
 
+	private final String countryName;
 	private final String longCountryCode;
 	private final String countryCode;
 
 	CountryCodeMapping(
+			final String countryName,
 			final String longCountryCode,
 			final String countryCode) {
 
+		this.countryName = countryName;
 		this.longCountryCode = longCountryCode;
 		this.countryCode = countryCode;
 	}
@@ -21,9 +24,11 @@ public class CountryCodeMapping {
 	public void writeToCsv(
 			final PrintStream printStream) {
 
-		if (longCountryCode.contains(":")) {
+		if (countryName.contains(":")) {
 			Logger.printWarning("country name contains separator :");
 		}
+		printStream.print(countryName);
+		printStream.print(':');
 		printStream.print(longCountryCode);
 		printStream.print(':');
 		printStream.print(countryCode);
@@ -33,6 +38,10 @@ public class CountryCodeMapping {
 	@Override
 	public String toString() {
 		return StrUtils.reflectionToString(this);
+	}
+
+	public String getCountryName() {
+		return countryName;
 	}
 
 	public String getLongCountryCode() {

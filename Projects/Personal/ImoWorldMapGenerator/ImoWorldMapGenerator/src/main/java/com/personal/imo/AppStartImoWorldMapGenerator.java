@@ -43,11 +43,11 @@ final class AppStartImoWorldMapGenerator {
 					PathUtils.tryParsePath("results XML", resultsXmlFilePathString);
 			if (resultsXmlFilePath != null) {
 
-				final List<String> longCountryCodeList = new ArrayList<>();
-				fillLongCountryCodeList(resultsXmlFilePath, longCountryCodeList);
+				final List<XmlCountry> xmlCountryList = new ArrayList<>();
+				fillXmlCountryList(resultsXmlFilePath, xmlCountryList);
 
 				final List<String> countryCodeList = new ArrayList<>();
-				fillCountryCodeList(longCountryCodeList, countryCodeList);
+				fillCountryCodeList(xmlCountryList, countryCodeList);
 
 				final String outputHtmlFilePathString = args[1];
 				final Path outputHtmlFilePath =
@@ -61,9 +61,9 @@ final class AppStartImoWorldMapGenerator {
 		}
 	}
 
-	private static void fillLongCountryCodeList(
+	private static void fillXmlCountryList(
 			final Path resultsXmlFilePath,
-			final List<String> longCountryCodeList) {
+			final List<XmlCountry> xmlCountryList) {
 
 		try {
 			Logger.printProgress("parsing input XML file:");
@@ -77,18 +77,23 @@ final class AppStartImoWorldMapGenerator {
 			for (final Element countryElement : countryElementList) {
 
 				final String longCountryCode = countryElement.getAttribute("code");
-				longCountryCodeList.add(longCountryCode);
+
+				final Element nameElement = XmlDomUtils.getFirstElementByTagName(countryElement, "name");
+				final String countryName = nameElement.getTextContent();
+
+				final XmlCountry xmlCountry = new XmlCountry(countryName, longCountryCode);
+				xmlCountryList.add(xmlCountry);
 			}
 
 		} catch (final Exception exc) {
-			Logger.printError("failed to fill long country code list");
+			Logger.printError("failed to parse input XML file");
 			Logger.printException(exc);
 		}
 	}
 
 	private static void fillCountryCodeList(
-            final List<String> longCountryCodeList,
-            final List<String> countryCodeList) {
+			final List<XmlCountry> xmlCountryList,
+			final List<String> countryCodeList) {
 
 		final CountryCodeMappingParser countryCodeMappingParser = new CountryCodeMappingParser();
 		countryCodeMappingParser.work();
@@ -97,18 +102,34 @@ final class AppStartImoWorldMapGenerator {
 				countryCodeMappingParser.getCountryCodeMappingList();
 
 		final Map<String, String> longToShortCountryCodeMap = new HashMap<>();
+		final Map<String, String> countryNameToCodeMap = new HashMap<>();
 		for (final CountryCodeMapping countryCodeMapping : countryCodeMappingList) {
 
 			final String longCountryCode = countryCodeMapping.getLongCountryCode();
 			final String countryCode = countryCodeMapping.getCountryCode();
 			longToShortCountryCodeMap.put(longCountryCode, countryCode);
+
+			final String countryName = countryCodeMapping.getCountryName();
+			countryNameToCodeMap.put(countryName, countryCode);
 		}
 
-		for (final String longCountryCode : longCountryCodeList) {
+		for (final XmlCountry xmlCountry : xmlCountryList) {
 
-			final String countryCode = longToShortCountryCodeMap.getOrDefault(longCountryCode, null);
+			final String longCountryCode = xmlCountry.getLongCountryCode();
+			String countryCode = longToShortCountryCodeMap.getOrDefault(longCountryCode, null);
 			if (countryCode == null) {
-				Logger.printWarning("found no mapping for long country code " + longCountryCode);
+
+				final String countryName = xmlCountry.getCountryName();
+				countryCode = countryNameToCodeMap.getOrDefault(countryName, null);
+				if (countryCode == null) {
+
+					Logger.printWarning("found no mapping for country " + countryName +
+							", long country code " + longCountryCode);
+
+				} else {
+					countryCodeList.add(countryCode);
+				}
+
 			} else {
 				countryCodeList.add(countryCode);
 			}
@@ -127,9 +148,9 @@ final class AppStartImoWorldMapGenerator {
 					.createParentDirectories(outputHtmlFilePath, true);
 			if (success) {
 
-				try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+				try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
 						IoUtils.resourceFileToInputStream("com/personal/imo/template.html")));
-						final PrintStream printStream = new PrintStream(
+						PrintStream printStream = new PrintStream(
 								new BufferedOutputStream(Files.newOutputStream(outputHtmlFilePath)))) {
 
 					String line;

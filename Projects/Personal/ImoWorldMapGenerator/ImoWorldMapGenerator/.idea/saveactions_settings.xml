@@ -7,7 +7,7 @@
         <option value="organizeImports" />
         <option value="reformat" />
         <option value="fieldCanBeFinal" />
-        <option value="localCanBeFinal" />
+        <option value="localCanBeFinalExceptImplicit" />
         <option value="missingOverrideAnnotation" />
         <option value="useBlocks" />
         <option value="generateSerialVersionUID" />

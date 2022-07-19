@@ -22,7 +22,7 @@ public class CountryCodeMappingParser {
 
 	public void work() {
 
-		try (final BufferedReader bufferedReader = new BufferedReader(
+		try (BufferedReader bufferedReader = new BufferedReader(
 				new InputStreamReader(IoUtils.resourceFileToInputStream(
 						"com/personal/imo/country_codes/country_code_mapping.csv")))) {
 
