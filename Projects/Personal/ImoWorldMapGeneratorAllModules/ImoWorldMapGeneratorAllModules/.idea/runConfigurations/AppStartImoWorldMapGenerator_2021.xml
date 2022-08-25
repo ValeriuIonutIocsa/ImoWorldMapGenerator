@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AppStartImoWorldMapGenerator 2021" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.personal.imo.AppStartImoWorldMapGenerator" />
+    <module name="ImoWorldMapGeneratorAllModules.ImoWorldMapGenerator.main" />
+    <option name="PROGRAM_PARAMETERS" value="../../../../Projects/Personal/ImoWorldMapGenerator/ImoWorldMapGenerator/inputs/IMO_Team_2021.xml ../../../../Projects/Personal/ImoWorldMapGenerator/ImoWorldMapGenerator/outputs/IMO_Team_2021_WorldMap.html" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.personal.imo.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,14 @@
+ext {
+    mainClass = 'com.personal.imo.AppStart' + project.name
+    projectVersion = '1.0.0'
+
+    subProjectNames = [
+            ':ImoWorldMapGenerator'
+    ]
+    compileClassPaths = []
+    compileJarFilePaths = []
+    testCompileClassPaths = []
+    testCompileJarFilePaths = []
+}
+
+apply from: gradle.ext.rootDirPath + '/common_build.gradle'
