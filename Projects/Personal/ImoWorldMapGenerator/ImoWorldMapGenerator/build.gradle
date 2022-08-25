@@ -1,8 +1,10 @@
 ext {
     mainClass = 'com.personal.imo.AppStart' + project.name
-    projectVersion = '1.0.0'
+    projectVersion = '0.0.1'
 
-    subProjectNames = [':xml-utils']
+    subProjectNames = [
+            ':xml-utils'
+    ]
     compileClassPaths = []
     compileJarFilePaths = []
     testCompileClassPaths = []
