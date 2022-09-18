@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.utils.concurrency.no_progress.ConcurrencyUtilsRegular;
+import com.utils.concurrency.no_progress.ConcurrencyUtilsSimpleRegular;
 import com.utils.io.IoUtils;
 import com.utils.io.file_copiers.FactoryFileCopier;
 import com.utils.io.folder_creators.FactoryFolderCreator;
@@ -110,7 +110,7 @@ public class ZipFileExtractor {
 				});
 
 				if (!runnableList.isEmpty()) {
-					new ConcurrencyUtilsRegular(threadCount).executeMultiThreadedTask(runnableList);
+					new ConcurrencyUtilsSimpleRegular(threadCount).executeMultiThreadedTask(runnableList);
 				}
 				Logger.printStatus("Finished extracting ZIP archive.");
 				success = true;

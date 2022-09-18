@@ -139,6 +139,37 @@ public final class PathUtils {
 		return FilenameUtils.getName(pathString);
 	}
 
+    @ApiMethod
+    public static String computeFolderPathString(
+            final Path path) {
+
+        String folderPathString;
+        final Path parentPath = path.getParent();
+        if (parentPath != null) {
+            folderPathString = parentPath.toString();
+        } else {
+            folderPathString = null;
+        }
+        return folderPathString;
+    }
+
+    @ApiMethod
+    public static String computeFolderPathString(
+            final String pathString) {
+
+        String folderPathString = null;
+        try {
+            final Path path = Paths.get(pathString);
+            final Path parentPath = path.getParent();
+            if (parentPath != null) {
+                folderPathString = parentPath.toString();
+            }
+
+        } catch (Exception ignored) {
+        }
+        return folderPathString;
+    }
+
 	@ApiMethod
 	public static String computeExtension(
 			final Path path) {

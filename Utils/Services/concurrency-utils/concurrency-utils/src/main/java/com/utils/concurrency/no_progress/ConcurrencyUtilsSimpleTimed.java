@@ -8,7 +8,7 @@ import com.utils.concurrency.no_progress.data.CustomCallableTimed;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
-public class ConcurrencyUtilsTimed extends AbstractConcurrencyUtils {
+public class ConcurrencyUtilsSimpleTimed extends AbstractConcurrencyUtilsSimple {
 
 	private final int timeout;
 
@@ -18,7 +18,7 @@ public class ConcurrencyUtilsTimed extends AbstractConcurrencyUtils {
 	 * @param timeout
 	 *            the duration in ms after which a task will be aborted
 	 */
-	public ConcurrencyUtilsTimed(
+	public ConcurrencyUtilsSimpleTimed(
 			final int threadCount,
 			final int timeout) {
 
@@ -28,14 +28,16 @@ public class ConcurrencyUtilsTimed extends AbstractConcurrencyUtils {
 	}
 
 	@Override
-	void printInitMessages() {
+	protected void printInitMessages() {
 
-		Logger.printLine("(number of threads: " + threadCount + ")");
+		final String threadCountDisplayString = createThreadCountDisplayString();
+		Logger.printLine("(number of threads: " + threadCountDisplayString + ")");
+
 		Logger.printLine("(timeout: " + StrUtils.timeMsToString(timeout) + ")");
 	}
 
 	@Override
-	void submitCallable(
+	protected void submitCallable(
 			final Runnable runnable,
 			final ExecutorService executorService,
 			final List<Future<?>> futureList) {
@@ -48,7 +50,7 @@ public class ConcurrencyUtilsTimed extends AbstractConcurrencyUtils {
 	}
 
 	@Override
-	void futureGet(
+	protected void futureGet(
 			final Future<?> future) {
 
 		try {

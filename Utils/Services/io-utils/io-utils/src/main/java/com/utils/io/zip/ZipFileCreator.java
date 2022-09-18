@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.utils.concurrency.no_progress.ConcurrencyUtilsRegular;
+import com.utils.concurrency.no_progress.ConcurrencyUtilsSimpleRegular;
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
 import com.utils.io.file_deleters.FactoryFileDeleter;
@@ -128,7 +128,7 @@ public class ZipFileCreator {
 						}
 					});
 					if (!runnableList.isEmpty()) {
-						new ConcurrencyUtilsRegular(threadCount).executeMultiThreadedTask(runnableList);
+						new ConcurrencyUtilsSimpleRegular(threadCount).executeMultiThreadedTask(runnableList);
 					}
 
 				} else {

@@ -1,8 +1,8 @@
-package com.utils.concurrency.progress;
+package com.utils.concurrency;
 
 import java.util.List;
 
-public interface ConcurrencyUtilsShowProgress {
+public interface ConcurrencyUtils {
 
 	void executeMultiThreadedTask(
 			List<Runnable> runnableList);

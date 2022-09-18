@@ -1,26 +1,26 @@
-package com.utils.string.junit;
+package com.utils.string.gradle;
 
 import com.utils.annotations.ApiMethod;
 
-public final class JUnitUtils {
+public final class GradleUtils {
 
-	private JUnitUtils() {
+	private GradleUtils() {
 	}
 
 	@ApiMethod
-	public static boolean isJUnitTest() {
+	public static boolean isGradle() {
 
-		boolean jUnitTest = false;
+		boolean gradleTest = false;
 		final StackTraceElement[] stackTraceElementArray = Thread.currentThread().getStackTrace();
 		for (final StackTraceElement stackTraceElement : stackTraceElementArray) {
 
 			final String clsName = stackTraceElement.getClassName();
-			if (clsName.startsWith("org.junit.")) {
+			if (clsName.startsWith("org.gradle.")) {
 
-				jUnitTest = true;
+				gradleTest = true;
 				break;
 			}
 		}
-		return jUnitTest;
+		return gradleTest;
 	}
 }

@@ -7,19 +7,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.utils.concurrency.AbstractConcurrencyUtils;
 import com.utils.log.progress.ProgressIndicators;
-import com.utils.string.StrUtils;
 
-abstract class AbstractConcurrencyUtilsShowProgress implements ConcurrencyUtilsShowProgress {
+abstract class AbstractConcurrencyUtilsShowProgress extends AbstractConcurrencyUtils {
 
-	final int threadCount;
 	private final int showProgressInterval;
 
 	AbstractConcurrencyUtilsShowProgress(
 			final int threadCount,
 			final int showProgressInterval) {
 
-		this.threadCount = threadCount;
+		super(threadCount);
+
 		this.showProgressInterval = showProgressInterval;
 	}
 
@@ -32,6 +32,7 @@ abstract class AbstractConcurrencyUtilsShowProgress implements ConcurrencyUtilsS
 			printInitMessages();
 
 			final ExecutorService executorService;
+			final int threadCount = getThreadCount();
 			if (threadCount <= 0) {
 				executorService = Executors.newCachedThreadPool();
 			} else {
@@ -56,8 +57,6 @@ abstract class AbstractConcurrencyUtilsShowProgress implements ConcurrencyUtilsS
 		}
 	}
 
-	abstract void printInitMessages();
-
 	abstract void submitCallable(
 			Runnable runnable,
 			ExecutorService executorService,
@@ -65,12 +64,4 @@ abstract class AbstractConcurrencyUtilsShowProgress implements ConcurrencyUtilsS
 			AtomicInteger completedRunnablesCount,
 			int runnableCount,
 			int showProgressInterval);
-
-	abstract void futureGet(
-			Future<?> future);
-
-	@Override
-	public String toString() {
-		return StrUtils.reflectionToString(this);
-	}
 }

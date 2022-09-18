@@ -4,10 +4,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.BiConsumer;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.utils.annotations.ApiMethod;
 import com.utils.string.StrUtils;
+import com.utils.string.gradle.GradleUtils;
 import com.utils.string.junit.JUnitUtils;
 
 public final class Logger {
@@ -20,6 +19,11 @@ public final class Logger {
 		final boolean jUnitTest = JUnitUtils.isJUnitTest();
 		if (jUnitTest) {
 			debugMode = true;
+		}
+
+		final boolean gradle = GradleUtils.isGradle();
+		if (gradle) {
+			System.setErr(System.out);
 		}
 	}
 
@@ -122,22 +126,30 @@ public final class Logger {
 	public static String exceptionToString(
 			final Throwable throwable) {
 
-		final String exceptionString;
+		final StringBuilder sbExceptionString = new StringBuilder();
 		if (throwable == null) {
-			exceptionString = "NULL exception!";
+			sbExceptionString.append("NULL exception");
 
 		} else {
 			final Class<? extends Throwable> excClass = throwable.getClass();
 			final String excClassSimpleName = excClass.getSimpleName();
-			final String excMessage = throwable.getMessage();
-			final StackTraceElement[] excStackTrace = throwable.getStackTrace();
-			final String prettyPrintedExcStackTrace =
-					StringUtils.join(excStackTrace, System.lineSeparator());
+			sbExceptionString.append("exception of class \"").append(excClassSimpleName)
+					.append("\" has occurred").append(System.lineSeparator());
 
-			exceptionString = "Exception of class \"" + excClassSimpleName + "\" has occurred!" +
-					System.lineSeparator() + excMessage + System.lineSeparator() + prettyPrintedExcStackTrace;
+			final String excMessage = throwable.getMessage();
+			sbExceptionString.append(excMessage).append(System.lineSeparator());
+
+			final StackTraceElement[] stackTraceElementArray = throwable.getStackTrace();
+			for (int i = 0; i < stackTraceElementArray.length; i++) {
+
+				final StackTraceElement stackTraceElement = stackTraceElementArray[i];
+				sbExceptionString.append(stackTraceElement);
+				if (i < stackTraceElementArray.length - 1) {
+					sbExceptionString.append(System.lineSeparator());
+				}
+			}
 		}
-		return exceptionString;
+		return sbExceptionString.toString();
 	}
 
 	@ApiMethod

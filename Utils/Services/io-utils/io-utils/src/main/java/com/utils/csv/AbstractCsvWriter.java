@@ -40,7 +40,7 @@ public abstract class AbstractCsvWriter implements CsvWriter {
 		FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(outputPath, true);
 		try (PrintStream printStream = new PrintStream(
 				new BufferedOutputStream(Files.newOutputStream(outputPath)),
-				false, StandardCharsets.UTF_8.name())) {
+				false, StandardCharsets.UTF_8)) {
 
 			printStream.println("\"sep=,\"");
 			write(printStream);

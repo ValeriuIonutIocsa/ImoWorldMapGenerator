@@ -6,16 +6,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.utils.string.StrUtils;
+import com.utils.concurrency.AbstractConcurrencyUtils;
 
-abstract class AbstractConcurrencyUtils implements ConcurrencyUtils {
+public abstract class AbstractConcurrencyUtilsSimple extends AbstractConcurrencyUtils {
 
-	final int threadCount;
-
-	AbstractConcurrencyUtils(
+	protected AbstractConcurrencyUtilsSimple(
 			final int threadCount) {
 
-		this.threadCount = threadCount;
+		super(threadCount);
 	}
 
 	@Override
@@ -27,6 +25,7 @@ abstract class AbstractConcurrencyUtils implements ConcurrencyUtils {
 			printInitMessages();
 
 			final ExecutorService executorService;
+			final int threadCount = getThreadCount();
 			if (threadCount <= 0) {
 				executorService = Executors.newCachedThreadPool();
 			} else {
@@ -46,18 +45,8 @@ abstract class AbstractConcurrencyUtils implements ConcurrencyUtils {
 		}
 	}
 
-	abstract void printInitMessages();
-
-	abstract void submitCallable(
+	protected abstract void submitCallable(
 			Runnable runnable,
 			ExecutorService executorService,
 			List<Future<?>> futureList);
-
-	abstract void futureGet(
-			Future<?> future);
-
-	@Override
-	public String toString() {
-		return StrUtils.reflectionToString(this);
-	}
 }

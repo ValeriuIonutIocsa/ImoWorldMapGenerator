@@ -18,8 +18,10 @@ public class ConcurrencyUtilsShowProgressRegular extends AbstractConcurrencyUtil
 	}
 
 	@Override
-	void printInitMessages() {
-		Logger.printLine("(number of threads: " + threadCount + ")");
+	protected void printInitMessages() {
+
+		final String threadCountDisplayString = createThreadCountDisplayString();
+		Logger.printLine("(number of threads: " + threadCountDisplayString + ")");
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class ConcurrencyUtilsShowProgressRegular extends AbstractConcurrencyUtil
 	}
 
 	@Override
-	void futureGet(
+	protected void futureGet(
 			final Future<?> future) {
 
 		try {

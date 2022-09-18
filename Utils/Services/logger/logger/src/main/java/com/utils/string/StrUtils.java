@@ -251,7 +251,7 @@ public final class StrUtils {
 
 		final int paddingLength = length - str.length();
 		if (paddingLength > 0) {
-			stringBuilder.append(" ".repeat(paddingLength));
+			stringBuilder.append(StringUtils.repeat(' ', paddingLength));
 		}
 		stringBuilder.append(str);
 	}
@@ -265,7 +265,7 @@ public final class StrUtils {
 		stringBuilder.append(str);
 		final int paddingLength = length - str.length();
 		if (paddingLength > 0) {
-			stringBuilder.append(" ".repeat(paddingLength));
+			stringBuilder.append(StringUtils.repeat(' ', paddingLength));
 		}
 	}
 
@@ -539,7 +539,8 @@ public final class StrUtils {
 		} else {
 			final String format;
 			if (mandatoryDigitCount > 0 || optionalDigitCount > 0) {
-				format = "0." + "0".repeat(mandatoryDigitCount) + "#".repeat(optionalDigitCount);
+				format = "0." + StringUtils.repeat('0', mandatoryDigitCount) +
+						StringUtils.repeat('#', optionalDigitCount);
 			} else {
 				format = "0";
 			}
@@ -695,6 +696,11 @@ public final class StrUtils {
 	}
 
 	@ApiMethod
+	public static String createPathDateTimeString() {
+		return new SimpleDateFormat("dd_MMM_yyyy__hh_mm_ss_SSS__zzz", Locale.US).format(new Date());
+	}
+
+	@ApiMethod
 	public static String createDisplayDateTimeString() {
 		return new SimpleDateFormat("dd MMM yyyy, hh:mm:ss zzz", Locale.US).format(new Date());
 	}
@@ -711,7 +717,31 @@ public final class StrUtils {
 
 		Byte value = null;
 		try {
-			value = Byte.parseByte(byteString);
+			value = (byte) Integer.parseInt(byteString);
+		} catch (final Exception ignored) {
+		}
+		return value;
+	}
+
+	@ApiMethod
+	public static Byte tryParseByteFromHexString(
+			final String byteString) {
+
+		Byte value = null;
+		try {
+			value = (byte) Integer.parseInt(byteString, 16);
+		} catch (final Exception ignored) {
+		}
+		return value;
+	}
+
+	@ApiMethod
+	public static Byte tryParseByteFromBinaryString(
+			final String byteString) {
+
+		Byte value = null;
+		try {
+			value = (byte) Integer.parseInt(byteString, 2);
 		} catch (final Exception ignored) {
 		}
 		return value;
@@ -906,6 +936,28 @@ public final class StrUtils {
 
 				data[i / 2] = (byte) ((Character.digit(strNoSpaces.charAt(i), 16) << 4) +
 						Character.digit(strNoSpaces.charAt(i + 1), 16));
+			}
+			byteArray = data;
+
+		} catch (final Exception ignored) {
+			byteArray = new byte[] {};
+		}
+		return byteArray;
+	}
+
+	@ApiMethod
+	public static byte[] tryParseByteArrayFromBinaryString(
+			final String str) {
+
+		byte[] byteArray;
+		try {
+			final String strNoSpaces = StringUtils.remove(str, ' ');
+			final int length = strNoSpaces.length();
+			final byte[] data = new byte[length / 8];
+			for (int i = 0; i < length; i += 8) {
+
+				final String byteString = strNoSpaces.substring(i, i + 8);
+				data[i / 8] = StrUtils.tryParseByteFromBinaryString(byteString);
 			}
 			byteArray = data;
 

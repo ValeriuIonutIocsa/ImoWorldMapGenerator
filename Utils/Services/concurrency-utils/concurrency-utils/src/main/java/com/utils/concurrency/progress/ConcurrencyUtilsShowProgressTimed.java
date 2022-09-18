@@ -32,9 +32,11 @@ public class ConcurrencyUtilsShowProgressTimed extends AbstractConcurrencyUtilsS
 	}
 
 	@Override
-	void printInitMessages() {
+    protected void printInitMessages() {
 
-		Logger.printLine("(number of threads: " + threadCount + ")");
+		final String threadCountDisplayString = createThreadCountDisplayString();
+		Logger.printLine("(number of threads: " + threadCountDisplayString + ")");
+
 		Logger.printLine("(timeout: " + StrUtils.timeMsToString(timeout) + ")");
 	}
 
@@ -55,7 +57,7 @@ public class ConcurrencyUtilsShowProgressTimed extends AbstractConcurrencyUtilsS
 	}
 
 	@Override
-	void futureGet(
+	protected void futureGet(
 			final Future<?> future) {
 
 		try {

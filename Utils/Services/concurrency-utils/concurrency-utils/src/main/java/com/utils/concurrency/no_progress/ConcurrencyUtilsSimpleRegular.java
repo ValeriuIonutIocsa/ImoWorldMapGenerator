@@ -8,20 +8,22 @@ import com.utils.concurrency.no_progress.data.CustomCallable;
 import com.utils.concurrency.no_progress.data.CustomCallableRegular;
 import com.utils.log.Logger;
 
-public class ConcurrencyUtilsRegular extends AbstractConcurrencyUtils {
+public class ConcurrencyUtilsSimpleRegular extends AbstractConcurrencyUtilsSimple {
 
-	public ConcurrencyUtilsRegular(
+	public ConcurrencyUtilsSimpleRegular(
 			final int threadCount) {
 		super(threadCount);
 	}
 
 	@Override
-	void printInitMessages() {
-		Logger.printLine("(number of threads: " + threadCount + ")");
+	protected void printInitMessages() {
+
+		final String threadCountDisplayString = createThreadCountDisplayString();
+		Logger.printLine("(number of threads: " + threadCountDisplayString + ")");
 	}
 
 	@Override
-	void submitCallable(
+	protected void submitCallable(
 			final Runnable runnable,
 			final ExecutorService executorService,
 			final List<Future<?>> futureList) {
@@ -32,7 +34,7 @@ public class ConcurrencyUtilsRegular extends AbstractConcurrencyUtils {
 	}
 
 	@Override
-	void futureGet(
+	protected void futureGet(
 			final Future<?> future) {
 
 		try {

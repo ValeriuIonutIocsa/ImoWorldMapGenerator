@@ -3,6 +3,8 @@ package com.utils.xml.dom;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,9 +84,17 @@ public final class XmlDomUtils {
 	}
 
 	private static DocumentBuilderFactory createDocumentBuilderFactory() {
-		return DocumentBuilderFactory.newInstance(
-				"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
-				Thread.currentThread().getContextClassLoader());
+
+		DocumentBuilderFactory documentBuilderFactory;
+		try {
+			documentBuilderFactory = DocumentBuilderFactory.newInstance(
+					"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+					Thread.currentThread().getContextClassLoader());
+
+		} catch (final Throwable ignored) {
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		}
+		return documentBuilderFactory;
 	}
 
 	@ApiMethod
@@ -129,7 +139,8 @@ public final class XmlDomUtils {
 			final int indentAmount,
 			final OutputStream outputStream) throws Exception {
 
-		final StreamResult streamResult = new StreamResult(outputStream);
+		final Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+		final StreamResult streamResult = new StreamResult(writer);
 		saveXml(document, omitXmlDeclaration, indentAmount, streamResult);
 	}
 
@@ -148,6 +159,7 @@ public final class XmlDomUtils {
 				"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
 				Thread.currentThread().getContextClassLoader());
 		final Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
 		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
 				StrUtils.booleanToYesNoString(omitXmlDeclaration));
 		transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
