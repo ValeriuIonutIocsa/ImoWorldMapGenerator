@@ -1,7 +1,5 @@
 package com.utils.io.ro_flag_clearers;
 
-import java.nio.file.Path;
-
 import com.utils.annotations.ApiMethod;
 
 public interface ReadOnlyFlagClearer {
@@ -9,52 +7,52 @@ public interface ReadOnlyFlagClearer {
 	/**
 	 * If file exist, clears the readonly flag of that file.
 	 *
-	 * @param filePath
+	 * @param filePathString
 	 *            The path to the file.
 	 * @param verbose
 	 *            If true, messages will be logged.
 	 */
 	@ApiMethod
 	boolean clearReadOnlyFlagFile(
-			Path filePath,
+			String filePathString,
 			boolean verbose);
 
 	/**
 	 * Clears the readonly flag of a file.
 	 *
-	 * @param filePath
+	 * @param filePathString
 	 *            The path to the file.
 	 * @param verbose
 	 *            If true, messages will be logged.
 	 */
 	@ApiMethod
 	boolean clearReadOnlyFlagFileNoChecks(
-			Path filePath,
+			String filePathString,
 			boolean verbose);
 
 	/**
 	 * If folder exists, clears the readonly flags of all files in that folder.
 	 *
-	 * @param folderPath
+	 * @param folderPathString
 	 *            The path to the folder.
 	 * @param verbose
 	 *            If true, messages will be logged.
 	 */
 	@ApiMethod
 	boolean clearReadOnlyFlagFolder(
-			Path folderPath,
+			String folderPathString,
 			boolean verbose);
 
 	/**
 	 * Clears the readonly flags of all files inside a folder.
 	 *
-	 * @param folderPath
+	 * @param folderPathString
 	 *            The path to the folder.
 	 * @param verbose
 	 *            If true, messages will be logged.
 	 */
 	@ApiMethod
 	boolean clearReadOnlyFlagFolderNoChecks(
-			Path folderPath,
+			String folderPathString,
 			boolean verbose);
 }

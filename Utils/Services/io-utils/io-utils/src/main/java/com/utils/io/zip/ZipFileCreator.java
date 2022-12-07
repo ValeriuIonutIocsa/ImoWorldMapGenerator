@@ -5,6 +5,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -16,6 +17,7 @@ import java.util.List;
 import com.utils.concurrency.no_progress.ConcurrencyUtilsSimpleRegular;
 import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
+import com.utils.io.file_copiers.FactoryFileCopier;
 import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.log.Logger;
@@ -23,8 +25,8 @@ import com.utils.string.StrUtils;
 
 public class ZipFileCreator {
 
-	private final Path srcFilePath;
-	private final Path zipArchiveFilePath;
+	private final String srcFilePathString;
+	private final String zipArchiveFilePathString;
 	private final boolean useTempFile;
 	private final boolean deleteExisting;
 	private final int threadCount;
@@ -35,16 +37,16 @@ public class ZipFileCreator {
 	private boolean success;
 
 	public ZipFileCreator(
-			final Path srcFilePath,
-			final Path zipArchiveFilePath,
+			final String srcFilePathString,
+			final String zipArchiveFilePathString,
 			final boolean useTempFile,
 			final boolean deleteExisting,
 			final int threadCount,
 			final boolean updateFileTimes,
 			final boolean verbose) {
 
-		this.srcFilePath = srcFilePath;
-		this.zipArchiveFilePath = zipArchiveFilePath;
+		this.srcFilePathString = srcFilePathString;
+		this.zipArchiveFilePathString = zipArchiveFilePathString;
 		this.useTempFile = useTempFile;
 		this.deleteExisting = deleteExisting;
 		this.threadCount = threadCount;
@@ -58,37 +60,39 @@ public class ZipFileCreator {
 		success = false;
 
 		Logger.printProgress("creating ZIP archive:");
-		Logger.printLine(zipArchiveFilePath);
+		Logger.printLine(zipArchiveFilePathString);
 
 		final boolean keepGoing;
 
-		if (IoUtils.directoryExists(srcFilePath)) {
+		if (IoUtils.directoryExists(srcFilePathString)) {
 
 			folder = true;
 			keepGoing = true;
 
 		} else {
-			if (IoUtils.fileExists(srcFilePath)) {
+			if (IoUtils.fileExists(srcFilePathString)) {
 				keepGoing = true;
 			} else {
 				Logger.printWarning("the source file does not exist:" +
-						System.lineSeparator() + srcFilePath);
+						System.lineSeparator() + srcFilePathString);
 				keepGoing = false;
 			}
 		}
 		if (keepGoing) {
 
-			if (deleteExisting && IoUtils.fileExists(zipArchiveFilePath)) {
-				FactoryFileDeleter.getInstance().deleteFile(zipArchiveFilePath, true);
+			if (deleteExisting && IoUtils.fileExists(zipArchiveFilePathString)) {
+				FactoryFileDeleter.getInstance().deleteFile(zipArchiveFilePathString, true);
 			}
 
-			FactoryFolderCreator.getInstance().createParentDirectories(zipArchiveFilePath, true);
+			FactoryFolderCreator.getInstance().createParentDirectories(zipArchiveFilePathString, true);
 
-			try (FileSystem zipFileSystem = ZipUtils.createNewZipFileSystem(zipArchiveFilePath, useTempFile)) {
+			try (FileSystem zipFileSystem =
+					ZipUtils.createNewZipFileSystem(zipArchiveFilePathString, useTempFile)) {
 
 				if (folder) {
 
 					final List<Runnable> runnableList = new ArrayList<>();
+					final Path srcFilePath = Paths.get(srcFilePathString);
 					Files.walkFileTree(srcFilePath, new SimpleFileVisitor<>() {
 
 						@Override
@@ -104,7 +108,8 @@ public class ZipFileCreator {
 									}
 
 									final Path relativeFilePath = srcFilePath.relativize(filePath);
-									final Path zipFilePath = zipFileSystem.getPath(relativeFilePath.toString());
+									final String relativeFilePathString = relativeFilePath.toString();
+									final Path zipFilePath = zipFileSystem.getPath(relativeFilePathString);
 									final Path zipFileParentFolderPath = zipFilePath.getParent();
 									if (zipFileParentFolderPath != null &&
 											!Files.isDirectory(zipFileParentFolderPath)) {
@@ -135,19 +140,21 @@ public class ZipFileCreator {
 
 					try {
 						if (verbose) {
-							Logger.printLine("zipping file: " + srcFilePath);
+							Logger.printLine("zipping file: " + srcFilePathString);
 						}
 
-						final String srcFileName = PathUtils.computeFileName(srcFilePath);
+						final String srcFileName = PathUtils.computeFileName(srcFilePathString);
 						final Path zipFilePath = zipFileSystem.getPath(srcFileName);
-						Files.copy(srcFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING,
-								StandardCopyOption.COPY_ATTRIBUTES);
+						final String zipFilePathString = zipFilePath.toString();
+						FactoryFileCopier.getInstance().copyFile(
+								srcFilePathString, zipFilePathString, true, false);
 						if (updateFileTimes) {
 							Files.setLastModifiedTime(zipFilePath, FileTime.from(Instant.now()));
 						}
 
 					} catch (final Exception exc) {
-						Logger.printError("failed to zip file:" + System.lineSeparator() + srcFilePath);
+						Logger.printError("failed to zip file:" +
+								System.lineSeparator() + srcFilePathString);
 						Logger.printException(exc);
 					}
 				}
@@ -157,7 +164,7 @@ public class ZipFileCreator {
 
 			} catch (final Exception exc) {
 				Logger.printError("failed to create ZIP archive:" +
-						System.lineSeparator() + zipArchiveFilePath);
+						System.lineSeparator() + zipArchiveFilePathString);
 				Logger.printException(exc);
 			}
 		}

@@ -1,14 +1,18 @@
 package com.utils.io.ro_flag_clearers;
 
-import com.utils.annotations.ApiMethod;
-
 public final class FactoryReadOnlyFlagClearer {
+
+	private static ReadOnlyFlagClearer instance = new ReadOnlyFlagClearerImpl();
 
 	private FactoryReadOnlyFlagClearer() {
 	}
 
-	@ApiMethod
 	public static ReadOnlyFlagClearer getInstance() {
-		return ReadOnlyFlagClearerImpl.INSTANCE;
+		return instance;
+	}
+
+	public static void setInstance(
+			final ReadOnlyFlagClearer instance) {
+		FactoryReadOnlyFlagClearer.instance = instance;
 	}
 }

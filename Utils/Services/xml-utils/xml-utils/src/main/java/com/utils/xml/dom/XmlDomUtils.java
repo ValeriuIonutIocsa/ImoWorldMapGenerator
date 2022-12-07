@@ -1,13 +1,12 @@
 package com.utils.xml.dom;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,18 +68,20 @@ public final class XmlDomUtils {
 
 	@ApiMethod
 	public static Document openDocument(
-			final Path path) throws Exception {
+			final String filePathString) throws Exception {
 
 		final DocumentBuilderFactory documentBuilderFactory = createDocumentBuilderFactory();
-		return new DocumentOpenerFile(path.toFile()).openDocument(documentBuilderFactory);
+		final File file = new File(filePathString);
+		return new DocumentOpenerFile(file).openDocument(documentBuilderFactory);
 	}
 
 	@ApiMethod
 	public static ValidatedDocument openAndValidateDocument(
-			final Path path) throws Exception {
+			final String filePathString) throws Exception {
 
 		final DocumentBuilderFactory documentBuilderFactory = createDocumentBuilderFactory();
-		return new DocumentOpenerFile(path.toFile()).openAndValidateDocument(documentBuilderFactory);
+		final File file = new File(filePathString);
+		return new DocumentOpenerFile(file).openAndValidateDocument(documentBuilderFactory);
 	}
 
 	private static DocumentBuilderFactory createDocumentBuilderFactory() {
@@ -100,24 +101,14 @@ public final class XmlDomUtils {
 	@ApiMethod
 	public static void saveXmlFile(
 			final Document document,
+			final boolean omitXmlDeclaration,
 			final int indentAmount,
 			final String outputPathString) throws Exception {
 
-		final Path outputPath = Paths.get(outputPathString);
-		saveXmlFile(document, false, indentAmount, outputPath);
-	}
+		FactoryFolderCreator.getInstance().createParentDirectories(outputPathString, true);
+		FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(outputPathString, true);
 
-	@ApiMethod
-	public static void saveXmlFile(
-			final Document document,
-			final boolean omitXmlDeclaration,
-			final int indentAmount,
-			final Path outputPath) throws Exception {
-
-		FactoryFolderCreator.getInstance().createParentDirectories(outputPath, true);
-		FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(outputPath, true);
-
-		final StreamResult streamResult = new StreamResult(outputPath.toString());
+		final StreamResult streamResult = new StreamResult(outputPathString);
 		saveXml(document, omitXmlDeclaration, indentAmount, streamResult);
 	}
 

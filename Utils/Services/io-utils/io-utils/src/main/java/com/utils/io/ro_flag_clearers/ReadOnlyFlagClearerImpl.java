@@ -3,6 +3,7 @@ package com.utils.io.ro_flag_clearers;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -11,21 +12,19 @@ import com.utils.io.IoUtils;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
-public final class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
+class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
 
-	static final ReadOnlyFlagClearerImpl INSTANCE = new ReadOnlyFlagClearerImpl();
-
-	private ReadOnlyFlagClearerImpl() {
+	ReadOnlyFlagClearerImpl() {
 	}
 
 	@Override
 	public boolean clearReadOnlyFlagFile(
-			final Path filePath,
+			final String filePathString,
 			final boolean verbose) {
 
 		final boolean success;
-		if (IoUtils.fileExists(filePath)) {
-			success = clearReadOnlyFlagFileNoChecks(filePath, verbose);
+		if (IoUtils.fileExists(filePathString)) {
+			success = clearReadOnlyFlagFileNoChecks(filePathString, verbose);
 		} else {
 			success = true;
 		}
@@ -35,18 +34,19 @@ public final class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
 	@Override
 	@ApiMethod
 	public boolean clearReadOnlyFlagFileNoChecks(
-			final Path filePath,
+			final String filePathString,
 			final boolean verbose) {
 
 		boolean success = false;
 		try {
+			final Path filePath = Paths.get(filePathString);
 			Files.setAttribute(filePath, "dos:readonly", false);
 			success = true;
 
 		} catch (final Exception exc) {
 			if (verbose) {
 				Logger.printError("failed to clear readonly flag for path:" +
-						System.lineSeparator() + filePath);
+						System.lineSeparator() + filePathString);
 			}
 			Logger.printException(exc);
 		}
@@ -55,12 +55,12 @@ public final class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
 
 	@Override
 	public boolean clearReadOnlyFlagFolder(
-			final Path folderPath,
+			final String folderPathString,
 			final boolean verbose) {
 
 		final boolean success;
-		if (IoUtils.directoryExists(folderPath)) {
-			success = clearReadOnlyFlagFolderNoChecks(folderPath, verbose);
+		if (IoUtils.directoryExists(folderPathString)) {
+			success = clearReadOnlyFlagFolderNoChecks(folderPathString, verbose);
 		} else {
 			success = true;
 		}
@@ -69,19 +69,21 @@ public final class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
 
 	@Override
 	public boolean clearReadOnlyFlagFolderNoChecks(
-			final Path folderPath,
+			final String folderPathString,
 			final boolean verbose) {
 
 		boolean success = false;
 		try {
+			final Path folderPath = Paths.get(folderPathString);
 			Files.walkFileTree(folderPath, new SimpleFileVisitor<>() {
 
 				@Override
 				public FileVisitResult visitFile(
-						final Path file,
+						final Path filePath,
 						final BasicFileAttributes attr) {
 
-					clearReadOnlyFlagFileNoChecks(file, true);
+					final String filePathString = filePath.toString();
+					clearReadOnlyFlagFileNoChecks(filePathString, true);
 					return FileVisitResult.CONTINUE;
 				}
 			});
@@ -90,7 +92,7 @@ public final class ReadOnlyFlagClearerImpl implements ReadOnlyFlagClearer {
 		} catch (final Exception exc) {
 			if (verbose) {
 				Logger.printError("failed to clear the readonly flags of folder:" +
-						System.lineSeparator() + folderPath);
+						System.lineSeparator() + folderPathString);
 			}
 			Logger.printException(exc);
 		}

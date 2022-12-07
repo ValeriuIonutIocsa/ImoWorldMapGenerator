@@ -1,6 +1,5 @@
 package com.utils.io.multi_paths;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,29 +8,29 @@ import com.utils.string.StrUtils;
 
 public class MultipleFilePaths {
 
-	private final List<Path> pathList;
+	private final List<String> pathStringList;
 
 	public MultipleFilePaths() {
 
-		pathList = new ArrayList<>();
+		pathStringList = new ArrayList<>();
 	}
 
 	public void addPath(
-			final Path path) {
-		pathList.add(path);
+			final String pathString) {
+		pathStringList.add(pathString);
 	}
 
-	public Path computeFirstPathThatExists() {
+	public String computeFirstPathThatExists() {
 
-		Path firstPathThatExists = null;
-		for (final Path path : pathList) {
+		String firstPathStringThatExists = null;
+		for (final String pathString : pathStringList) {
 
-			if (IoUtils.fileExists(path)) {
-				firstPathThatExists = path;
+			if (IoUtils.fileExists(pathString)) {
+				firstPathStringThatExists = pathString;
 				break;
 			}
 		}
-		return firstPathThatExists;
+		return firstPathStringThatExists;
 	}
 
 	@Override

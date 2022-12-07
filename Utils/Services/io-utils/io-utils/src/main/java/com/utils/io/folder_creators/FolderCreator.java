@@ -1,33 +1,36 @@
 package com.utils.io.folder_creators;
 
-import java.nio.file.Path;
-
 import com.utils.annotations.ApiMethod;
 
 public interface FolderCreator {
 
 	@ApiMethod
 	boolean createParentDirectories(
-			Path filePath,
+			String filePathString,
 			boolean verbose);
+
+    @ApiMethod
+    boolean createParentDirectoriesNoCheck(
+            String filePathString,
+            boolean verbose);
 
 	@ApiMethod
 	boolean createDirectories(
-			Path directoryPath,
+			String directoryPathString,
 			boolean verbose);
 
 	@ApiMethod
 	boolean createDirectoriesNoCheck(
-			Path directoryPath,
+			String directoryPathString,
 			boolean verbose);
 
 	@ApiMethod
 	boolean createDirectory(
-			Path directoryPath,
+			String directoryPathString,
 			boolean verbose);
 
 	@ApiMethod
 	boolean createDirectoryNoChecks(
-			Path directoryPath,
+			String directoryPathString,
 			boolean verbose);
 }

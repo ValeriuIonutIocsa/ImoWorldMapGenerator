@@ -1,7 +1,5 @@
 package com.utils.hash;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,9 +41,8 @@ public class HashUtilsTest {
 
 		Logger.printLine("library file path:");
 		Logger.printLine(filePathString);
-		final Path filePath = Paths.get(filePathString);
 
-		final String hash = HashUtils.computeFileHash(filePath, algorithm);
+		final String hash = HashUtils.computeFileHash(filePathString, algorithm);
 		Assertions.assertTrue(StringUtils.equalsIgnoreCase(hash, expectedHash));
 
 		Logger.printLine("hash: " + hash);

@@ -1,65 +1,88 @@
 package com.utils.io.file_copiers;
 
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.utils.annotations.ApiMethod;
 import com.utils.io.IoUtils;
+import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.io.ro_flag_clearers.FactoryReadOnlyFlagClearer;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
-public final class FileCopierImpl implements FileCopier {
+class FileCopierImpl implements FileCopier {
 
-	static final FileCopierImpl INSTANCE = new FileCopierImpl();
-
-	private FileCopierImpl() {
+	FileCopierImpl() {
 	}
 
 	@ApiMethod
 	@Override
 	public boolean copyFile(
-			final Path srcPath,
-			final Path destPath,
+			final String srcFilePathString,
+			final String dstFilePathString,
 			final boolean copyAttributes,
 			final boolean verbose) {
 
-		final boolean destFileExists = IoUtils.fileExists(destPath);
-		return copyFileNoChecks(srcPath, destPath, destFileExists, copyAttributes, verbose);
+		final boolean dstFileExists = IoUtils.fileExists(dstFilePathString);
+		return copyFileNoChecks(srcFilePathString, dstFilePathString,
+				dstFileExists, copyAttributes, verbose);
 	}
 
 	@ApiMethod
 	@Override
 	public boolean copyFileNoChecks(
-			final Path srcPath,
-			final Path destPath,
-			final boolean destFileExists,
+			final String srcFilePathString,
+			final String dstFilePathString,
+			final boolean dstFileExists,
 			final boolean copyAttributes,
 			final boolean verbose) {
 
 		boolean success = false;
 		try {
-			if (destFileExists) {
-				FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFileNoChecks(destPath, true);
-			}
-			if (copyAttributes) {
-				Files.copy(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING,
-						StandardCopyOption.COPY_ATTRIBUTES);
+			Logger.printProgress("copying file:");
+			Logger.printLine(srcFilePathString);
+			Logger.printLine("to:");
+			Logger.printLine(dstFilePathString);
+
+			final boolean keepGoing;
+			if (dstFileExists) {
+				keepGoing = FactoryReadOnlyFlagClearer.getInstance()
+						.clearReadOnlyFlagFileNoChecks(dstFilePathString, true);
 			} else {
-				Files.copy(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
+				keepGoing = FactoryFolderCreator.getInstance()
+						.createParentDirectories(dstFilePathString, true);
 			}
-			success = true;
+			if (keepGoing) {
+
+				final List<CopyOption> copyOptionList = new ArrayList<>();
+				copyOptionList.add(StandardCopyOption.REPLACE_EXISTING);
+				if (copyAttributes) {
+					copyOptionList.add(StandardCopyOption.COPY_ATTRIBUTES);
+				}
+				final CopyOption[] copyOptionArray = copyOptionList.toArray(new CopyOption[] {});
+
+				final Path srcFilePath = Paths.get(srcFilePathString);
+				final Path dstFilePath = Paths.get(dstFilePathString);
+				Files.copy(srcFilePath, dstFilePath, copyOptionArray);
+				success = true;
+			}
 
 		} catch (final Exception exc) {
-			if (verbose) {
-				Logger.printError("failed to copy file " +
-						System.lineSeparator() + srcPath +
-						System.lineSeparator() + "to:" +
-						System.lineSeparator() + destPath);
-			}
 			Logger.printException(exc);
 		}
+
+		if (verbose && !success) {
+			Logger.printError("failed to copy file " +
+					System.lineSeparator() + srcFilePathString +
+					System.lineSeparator() + "to:" +
+					System.lineSeparator() + dstFilePathString);
+		}
+
 		return success;
 	}
 

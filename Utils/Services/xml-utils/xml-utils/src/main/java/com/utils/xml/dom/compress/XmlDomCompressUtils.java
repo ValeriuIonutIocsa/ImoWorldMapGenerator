@@ -40,8 +40,9 @@ public final class XmlDomCompressUtils {
 
 			final String childElementTagName = childElement.getTagName();
 			CompressedElement compressedElement =
-					compressedElementsByTagNameMap.getOrDefault(childElementTagName, null);
+					compressedElementsByTagNameMap.get(childElementTagName);
 			if (compressedElement == null) {
+
 				final int index = compressedElementsByTagNameMap.size();
 				final String compressedName = createCompressedName(index);
 				compressedElement = new CompressedElement(compressedName);
@@ -55,9 +56,8 @@ public final class XmlDomCompressUtils {
 
 				final String attrName = attr.getName();
 
-				final Map<String, String> attributesByNameMap =
-						compressedElement.getAttributesByNameMap();
-				String attrCompressedName = attributesByNameMap.getOrDefault(attrName, null);
+				final Map<String, String> attributesByNameMap = compressedElement.getAttributesByNameMap();
+				String attrCompressedName = attributesByNameMap.get(attrName);
 				if (attrCompressedName == null) {
 
 					final int index = attributesByNameMap.size();
@@ -170,7 +170,7 @@ public final class XmlDomCompressUtils {
 		for (final Element childElement : childElementList) {
 
 			final String childElementCompressedName = childElement.getTagName();
-			final String childElementName = namesByIdMap.getOrDefault(childElementCompressedName, null);
+			final String childElementName = namesByIdMap.get(childElementCompressedName);
 			if (childElementName != null) {
 				document.renameNode(childElement, childElement.getNamespaceURI(), childElementName);
 			}
@@ -180,7 +180,7 @@ public final class XmlDomCompressUtils {
 
 				final String attrCompressedName = attr.getName();
 				final String attrId = childElementCompressedName + ">" + attrCompressedName;
-				final String attrName = namesByIdMap.getOrDefault(attrId, null);
+				final String attrName = namesByIdMap.get(attrId);
 				if (attrName != null) {
 					document.renameNode(attr, attr.getNamespaceURI(), attrName);
 				}

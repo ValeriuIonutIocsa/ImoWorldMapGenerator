@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.personal.imo.country_codes.mappings.CountryCodeMapping;
 import com.personal.imo.country_codes.mappings.FactoryCountryCodeMapping;
-import com.utils.io.IoUtils;
+import com.utils.io.ResourceFileUtils;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
@@ -22,8 +22,8 @@ public class CountryCodeMappingParser {
 
 	public void work() {
 
-		try (BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(IoUtils.resourceFileToInputStream(
+		try (final BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(ResourceFileUtils.resourceFileToInputStream(
 						"com/personal/imo/country_codes/country_code_mapping.csv")))) {
 
 			String line;

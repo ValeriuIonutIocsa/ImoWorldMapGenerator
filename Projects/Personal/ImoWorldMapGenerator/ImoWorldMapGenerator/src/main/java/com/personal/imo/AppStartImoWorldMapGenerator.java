@@ -1,11 +1,8 @@
 package com.personal.imo;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +14,9 @@ import org.w3c.dom.Element;
 
 import com.personal.imo.country_codes.CountryCodeMappingParser;
 import com.personal.imo.country_codes.mappings.CountryCodeMapping;
-import com.utils.io.IoUtils;
 import com.utils.io.PathUtils;
+import com.utils.io.ResourceFileUtils;
+import com.utils.io.StreamUtils;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.log.Logger;
 import com.utils.xml.dom.XmlDomUtils;
@@ -38,23 +36,23 @@ final class AppStartImoWorldMapGenerator {
 			Logger.printError("insufficient arguments");
 
 		} else {
-			final String resultsXmlFilePathString = args[0];
-			final Path resultsXmlFilePath =
-					PathUtils.tryParsePath("results XML", resultsXmlFilePathString);
-			if (resultsXmlFilePath != null) {
+			String resultsXmlFilePathString = args[0];
+			resultsXmlFilePathString =
+					PathUtils.computeNormalizedPath("results XML", resultsXmlFilePathString);
+			if (resultsXmlFilePathString != null) {
 
 				final List<XmlCountry> xmlCountryList = new ArrayList<>();
-				fillXmlCountryList(resultsXmlFilePath, xmlCountryList);
+				fillXmlCountryList(resultsXmlFilePathString, xmlCountryList);
 
 				final List<String> countryCodeList = new ArrayList<>();
 				fillCountryCodeList(xmlCountryList, countryCodeList);
 
-				final String outputHtmlFilePathString = args[1];
-				final Path outputHtmlFilePath =
-						PathUtils.tryParsePath("output HTML", outputHtmlFilePathString);
-				if (outputHtmlFilePath != null) {
+				String outputHtmlFilePathString = args[1];
+				outputHtmlFilePathString =
+						PathUtils.computeNormalizedPath("output HTML", outputHtmlFilePathString);
+				if (outputHtmlFilePathString != null) {
 
-					writeOutputHtmlFile(countryCodeList, outputHtmlFilePath);
+					writeOutputHtmlFile(countryCodeList, outputHtmlFilePathString);
 					Logger.printFinishMessage(start);
 				}
 			}
@@ -62,14 +60,14 @@ final class AppStartImoWorldMapGenerator {
 	}
 
 	private static void fillXmlCountryList(
-			final Path resultsXmlFilePath,
+			final String resultsXmlFilePathString,
 			final List<XmlCountry> xmlCountryList) {
 
 		try {
 			Logger.printProgress("parsing input XML file:");
-			Logger.printLine(resultsXmlFilePath);
+			Logger.printLine(resultsXmlFilePathString);
 
-			final Document document = XmlDomUtils.openDocument(resultsXmlFilePath);
+			final Document document = XmlDomUtils.openDocument(resultsXmlFilePathString);
 			final Element documentElement = document.getDocumentElement();
 
 			final List<Element> countryElementList =
@@ -116,11 +114,11 @@ final class AppStartImoWorldMapGenerator {
 		for (final XmlCountry xmlCountry : xmlCountryList) {
 
 			final String longCountryCode = xmlCountry.getLongCountryCode();
-			String countryCode = longToShortCountryCodeMap.getOrDefault(longCountryCode, null);
+			String countryCode = longToShortCountryCodeMap.get(longCountryCode);
 			if (countryCode == null) {
 
 				final String countryName = xmlCountry.getCountryName();
-				countryCode = countryNameToCodeMap.getOrDefault(countryName, null);
+				countryCode = countryNameToCodeMap.get(countryName);
 				if (countryCode == null) {
 
 					Logger.printWarning("found no mapping for country " + countryName +
@@ -138,20 +136,19 @@ final class AppStartImoWorldMapGenerator {
 
 	private static void writeOutputHtmlFile(
 			final List<String> countryCodeList,
-			final Path outputHtmlFilePath) {
+			final String outputHtmlFilePathString) {
 
 		try {
 			Logger.printProgress("writing output HTML file:");
-			Logger.printLine(outputHtmlFilePath);
+			Logger.printLine(outputHtmlFilePathString);
 
 			final boolean success = FactoryFolderCreator.getInstance()
-					.createParentDirectories(outputHtmlFilePath, true);
+					.createParentDirectories(outputHtmlFilePathString, true);
 			if (success) {
 
-				try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-						IoUtils.resourceFileToInputStream("com/personal/imo/template.html")));
-						PrintStream printStream = new PrintStream(
-								new BufferedOutputStream(Files.newOutputStream(outputHtmlFilePath)))) {
+				try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+						ResourceFileUtils.resourceFileToInputStream("com/personal/imo/template.html")));
+						final PrintStream printStream = StreamUtils.openPrintStream(outputHtmlFilePathString)) {
 
 					String line;
 					while ((line = bufferedReader.readLine()) != null) {

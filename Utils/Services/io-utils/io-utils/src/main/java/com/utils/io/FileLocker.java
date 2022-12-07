@@ -6,10 +6,9 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import com.utils.annotations.ApiMethod;
+import com.utils.io.file_creators.FactoryFileCreator;
 import com.utils.io.file_deleters.FactoryFileDeleter;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.io.ro_flag_clearers.FactoryReadOnlyFlagClearer;
@@ -19,7 +18,7 @@ import com.utils.string.StrUtils;
 public class FileLocker {
 
 	private final String lockerName;
-	private final Path lockFilePath;
+	private final String lockFilePathString;
 
 	private RandomAccessFile randomAccessFile;
 	private FileChannel fileChannel;
@@ -27,10 +26,10 @@ public class FileLocker {
 
 	public FileLocker(
 			final String lockerName,
-			final Path lockFilePath) {
+			final String lockFilePathString) {
 
 		this.lockerName = lockerName;
-		this.lockFilePath = lockFilePath;
+		this.lockFilePathString = lockFilePathString;
 	}
 
 	@ApiMethod
@@ -40,7 +39,7 @@ public class FileLocker {
 		try {
 			Logger.printProgress("acquiring " + lockerName + " file lock");
 
-			if (IoUtils.fileExists(lockFilePath)) {
+			if (IoUtils.fileExists(lockFilePathString)) {
 				try {
 					final String text;
 					if (lockerName != null) {
@@ -48,7 +47,7 @@ public class FileLocker {
 					} else {
 						text = "locked";
 					}
-					IoUtils.writeStringToFile(lockFilePath, text, StandardCharsets.UTF_8);
+					WriterUtils.stringToFile(text, StandardCharsets.UTF_8, lockFilePathString);
 
 				} catch (final Exception ignored) {
 					success = false;
@@ -58,9 +57,9 @@ public class FileLocker {
 				}
 
 			} else {
-				FactoryFolderCreator.getInstance().createParentDirectories(lockFilePath, true);
-				FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(lockFilePath, true);
-				Files.createFile(lockFilePath);
+				FactoryFolderCreator.getInstance().createParentDirectories(lockFilePathString, true);
+				FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(lockFilePathString, true);
+				FactoryFileCreator.getInstance().createFile(lockFilePathString, true);
 				lockExistingFile();
 			}
 
@@ -73,7 +72,7 @@ public class FileLocker {
 
 	private void lockExistingFile() throws IOException {
 
-		final File lockFile = lockFilePath.toFile();
+		final File lockFile = new File(lockFilePathString);
 		randomAccessFile = new RandomAccessFile(lockFile, "rw");
 		fileChannel = randomAccessFile.getChannel();
 		fileLock = fileChannel.lock();
@@ -98,7 +97,7 @@ public class FileLocker {
 
 					} else {
 						randomAccessFile.close();
-						FactoryFileDeleter.getInstance().deleteFile(lockFilePath, true);
+						FactoryFileDeleter.getInstance().deleteFile(lockFilePathString, true);
 					}
 				}
 			}

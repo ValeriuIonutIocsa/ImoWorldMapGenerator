@@ -1,29 +1,27 @@
 package com.utils.csv;
 
-import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.utils.annotations.ApiMethod;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.io.ro_flag_clearers.FactoryReadOnlyFlagClearer;
+import com.utils.io.StreamUtils;
 import com.utils.log.Logger;
 
 public abstract class AbstractCsvWriter implements CsvWriter {
 
 	private final String name;
-	private final Path outputPath;
+	private final String outputPathString;
 
 	protected AbstractCsvWriter(
 			final String name,
-			final Path outputPath) {
+			final String outputPathString) {
 
 		this.name = name;
-		this.outputPath = outputPath;
+		this.outputPathString = outputPathString;
 	}
 
 	@Override
@@ -32,15 +30,15 @@ public abstract class AbstractCsvWriter implements CsvWriter {
 
 		boolean success = false;
 		if (StringUtils.isNotBlank(name)) {
+
 			Logger.printProgress("writing " + name + ":");
-			Logger.printLine(outputPath);
+			Logger.printLine(outputPathString);
 		}
 
-		FactoryFolderCreator.getInstance().createParentDirectories(outputPath, true);
-		FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(outputPath, true);
-		try (PrintStream printStream = new PrintStream(
-				new BufferedOutputStream(Files.newOutputStream(outputPath)),
-				false, StandardCharsets.UTF_8)) {
+		FactoryFolderCreator.getInstance().createParentDirectories(outputPathString, true);
+		FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(outputPathString, true);
+		try (PrintStream printStream = StreamUtils.openPrintStream(
+				outputPathString, false, StandardCharsets.UTF_8)) {
 
 			printStream.println("\"sep=,\"");
 			write(printStream);

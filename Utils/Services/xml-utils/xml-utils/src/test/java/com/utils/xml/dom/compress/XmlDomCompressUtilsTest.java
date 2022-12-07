@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-import com.utils.io.IoUtils;
+import com.utils.io.ResourceFileUtils;
 import com.utils.log.Logger;
 import com.utils.xml.dom.XmlDomUtils;
 
@@ -16,7 +16,7 @@ class XmlDomCompressUtilsTest {
 	void testCompressXml() throws Exception {
 
 		final String resourceFilePathString = "com/utils/xml/dom/compress/test.xml";
-		try (InputStream inputStream = IoUtils.resourceFileToInputStream(resourceFilePathString)) {
+		try (InputStream inputStream = ResourceFileUtils.resourceFileToInputStream(resourceFilePathString)) {
 
 			final Document document = XmlDomUtils.openDocument(inputStream);
 			final String xmlFileContents = XmlDomUtils.saveXmlFile(document, false, 4);

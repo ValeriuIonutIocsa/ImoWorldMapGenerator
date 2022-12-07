@@ -1,9 +1,6 @@
 package com.utils.net.proxy.settings;
 
-import java.io.BufferedOutputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Properties;
 
 import javax.crypto.Cipher;
@@ -12,6 +9,7 @@ import javax.crypto.CipherOutputStream;
 import org.junit.jupiter.api.Test;
 
 import com.utils.crypt.EncryptionUtils;
+import com.utils.io.StreamUtils;
 import com.utils.log.Logger;
 
 class FactoryProxySettingsTest {
@@ -26,9 +24,9 @@ class FactoryProxySettingsTest {
 	@Test
 	void testCreateProxySettings() throws Exception {
 
-		final Path proxySettingsPath = FactoryProxySettings.createProxySettingsPath();
+		final String proxySettingsPathString = FactoryProxySettings.createProxySettingsPathString();
 		Logger.printProgress("generating proxy settings file:");
-		Logger.printLine(proxySettingsPath);
+		Logger.printLine(proxySettingsPathString);
 
 		final String httpHost = "cias3basic.conti.de";
 		final int httpPort = 8_080;
@@ -43,7 +41,7 @@ class FactoryProxySettingsTest {
 
 		final Cipher encryptCipher = EncryptionUtils.createEncryptCipher();
 		try (OutputStream outputStream = new CipherOutputStream(
-				new BufferedOutputStream(Files.newOutputStream(proxySettingsPath)), encryptCipher)) {
+				StreamUtils.openBufferedOutputStream(proxySettingsPathString), encryptCipher)) {
 			properties.store(outputStream, "proxy settings");
 		}
 	}

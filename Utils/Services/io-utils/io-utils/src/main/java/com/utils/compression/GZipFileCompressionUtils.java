@@ -2,12 +2,12 @@ package com.utils.compression;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
+
+import com.utils.io.StreamUtils;
 
 public final class GZipFileCompressionUtils {
 
@@ -15,22 +15,22 @@ public final class GZipFileCompressionUtils {
 	}
 
 	public static void compressFile(
-			final Path inputFilePath,
-			final Path outputFilePath) throws Exception {
+			final String inputFilePathString,
+			final String outputFilePathString) throws Exception {
 
-		try (InputStream inputStream = Files.newInputStream(inputFilePath);
-				OutputStream outputStream = new GZIPOutputStream(Files.newOutputStream(outputFilePath))) {
+		try (InputStream inputStream = StreamUtils.openInputStream(inputFilePathString);
+				OutputStream outputStream = new GZIPOutputStream(StreamUtils.openOutputStream(outputFilePathString))) {
 
 			IOUtils.copy(inputStream, outputStream);
 		}
 	}
 
 	public static void decompressFile(
-			final Path inputFilePath,
-			final Path outputFilePath) throws Exception {
+			final String inputFilePathString,
+			final String outputFilePathString) throws Exception {
 
-		try (InputStream inputStream = new GZIPInputStream(Files.newInputStream(inputFilePath));
-				OutputStream outputStream = Files.newOutputStream(outputFilePath)) {
+		try (InputStream inputStream = new GZIPInputStream(StreamUtils.openInputStream(inputFilePathString));
+				OutputStream outputStream = StreamUtils.openOutputStream(outputFilePathString)) {
 
 			IOUtils.copy(inputStream, outputStream);
 		}

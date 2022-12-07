@@ -2,27 +2,26 @@ package com.utils.io.file_deleters;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.utils.io.IoUtils;
 import com.utils.io.ro_flag_clearers.FactoryReadOnlyFlagClearer;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
-public final class FileDeleterImpl implements FileDeleter {
+class FileDeleterImpl implements FileDeleter {
 
-	static final FileDeleterImpl INSTANCE = new FileDeleterImpl();
-
-	private FileDeleterImpl() {
+	FileDeleterImpl() {
 	}
 
 	@Override
 	public boolean deleteFile(
-			final Path filePath,
+			final String filePathString,
 			final boolean verbose) {
 
 		final boolean success;
-		if (IoUtils.fileExists(filePath)) {
-			success = deleteFileNoChecks(filePath, verbose);
+		if (IoUtils.fileExists(filePathString)) {
+			success = deleteFileNoChecks(filePathString, verbose);
 		} else {
 			success = true;
 		}
@@ -31,18 +30,21 @@ public final class FileDeleterImpl implements FileDeleter {
 
 	@Override
 	public boolean deleteFileNoChecks(
-			final Path filePath,
+			final String filePathString,
 			final boolean verbose) {
 
 		boolean success = false;
 		try {
-			FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(filePath, true);
+			FactoryReadOnlyFlagClearer.getInstance().clearReadOnlyFlagFile(filePathString, true);
+
+			final Path filePath = Paths.get(filePathString);
 			Files.delete(filePath);
+
 			success = true;
 
 		} catch (final Exception exc) {
 			if (verbose) {
-				Logger.printError("failed to delete file:" + System.lineSeparator() + filePath);
+				Logger.printError("failed to delete file:" + System.lineSeparator() + filePathString);
 			}
 			Logger.printException(exc);
 		}

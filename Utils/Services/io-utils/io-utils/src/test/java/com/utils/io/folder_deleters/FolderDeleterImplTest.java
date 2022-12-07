@@ -1,21 +1,20 @@
 package com.utils.io.folder_deleters;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.utils.io.IoUtils;
+import com.utils.io.PathUtils;
 
 class FolderDeleterImplTest {
 
 	@Test
 	void testDeleteFolder() {
 
-		final Path folderPath = Paths.get("");
-		Assertions.assertTrue(IoUtils.directoryExists(folderPath));
-		FolderDeleterImpl.INSTANCE.deleteFolder(folderPath, true);
-		Assertions.assertFalse(IoUtils.directoryExists(folderPath));
+		String folderPathString = "null";
+		folderPathString = PathUtils.computePath(folderPathString);
+		Assertions.assertTrue(IoUtils.directoryExists(folderPathString));
+		new FolderDeleterImpl().deleteFolder(folderPathString, true);
+		Assertions.assertFalse(IoUtils.directoryExists(folderPathString));
 	}
 }

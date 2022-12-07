@@ -1,9 +1,6 @@
 package com.utils.xml.dom.openers;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -11,6 +8,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.utils.io.PathUtils;
+import com.utils.io.ReaderUtils;
 
 public class DocumentOpenerInputStream extends AbstractDocumentOpener {
 
@@ -32,9 +30,10 @@ public class DocumentOpenerInputStream extends AbstractDocumentOpener {
 		documentBuilder.setEntityResolver((
 				publicId,
 				systemId) -> {
+
 			final String schemaFileName = PathUtils.computeFileName(systemId);
-			final Path schemaFilePath = Paths.get(schemaFolderPathString, schemaFileName);
-			return new InputSource(Files.newBufferedReader(schemaFilePath));
+			final String schemaFilePathString = PathUtils.computePath(schemaFolderPathString, schemaFileName);
+			return new InputSource(ReaderUtils.openBufferedReader(schemaFilePathString));
 		});
 
 		return documentBuilder.parse(inputStream);

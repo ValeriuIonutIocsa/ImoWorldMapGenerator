@@ -2,14 +2,15 @@ package com.utils.net.ssl.rmi;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.utils.io.IoUtils;
+import com.utils.io.PathUtils;
+import com.utils.io.ResourceFileUtils;
+import com.utils.io.StreamUtils;
+import com.utils.io.WriterUtils;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.log.Logger;
 
@@ -38,25 +39,27 @@ public final class RmiSslUtils {
 	private static String copyCertificateResources(
 			final String certificateResourceFilePath) throws Exception {
 
-		final Path certificatePath = Paths.get(SystemUtils.USER_HOME,
+		final String certificatePathString = PathUtils.computePath(SystemUtils.USER_HOME,
 				"JavaCertificates", certificateResourceFilePath);
-		if (!IoUtils.fileExists(certificatePath)) {
+		if (!IoUtils.fileExists(certificatePathString)) {
 
-			FactoryFolderCreator.getInstance().createParentDirectories(certificatePath, true);
+			FactoryFolderCreator.getInstance().createParentDirectories(certificatePathString, true);
 
-			try (InputStream inputStream = IoUtils.resourceFileToInputStream(certificateResourceFilePath);
-					OutputStream outputStream = Files.newOutputStream(certificatePath)) {
+			try (InputStream inputStream =
+					ResourceFileUtils.resourceFileToInputStream(certificateResourceFilePath);
+					OutputStream outputStream = StreamUtils.openOutputStream(certificatePathString)) {
 				IOUtils.copy(inputStream, outputStream);
 			}
 
 		} else {
-			try (InputStream inputStream = IoUtils.resourceFileToInputStream(certificateResourceFilePath);
-					OutputStream outputStream = Files.newOutputStream(certificatePath)) {
+			try (InputStream inputStream =
+					ResourceFileUtils.resourceFileToInputStream(certificateResourceFilePath);
+					OutputStream outputStream = StreamUtils.openOutputStream(certificatePathString)) {
 				IOUtils.copy(inputStream, outputStream);
 			} catch (final Exception ignored) {
 			}
 		}
-		return certificatePath.toString();
+		return certificatePathString;
 	}
 
 	public static void configureSettingsByteArrays(
@@ -82,23 +85,23 @@ public final class RmiSslUtils {
 
 	private static String copyCertificateString(
 			final byte[] certificateByteArray,
-			final String certificateResourceFilePath) throws Exception {
+			final String certificateResourceFilePath) {
 
-		final Path certificatePath = Paths.get(SystemUtils.USER_HOME,
+		final String certificatePathString = PathUtils.computePath(SystemUtils.USER_HOME,
 				"JavaCertificates", certificateResourceFilePath);
-		if (!IoUtils.fileExists(certificatePath)) {
+		if (!IoUtils.fileExists(certificatePathString)) {
 
-			FactoryFolderCreator.getInstance().createParentDirectories(certificatePath, true);
+			FactoryFolderCreator.getInstance().createParentDirectories(certificatePathString, true);
 
-			Files.write(certificatePath, certificateByteArray);
+			WriterUtils.byteArrayToFile(certificateByteArray, certificatePathString);
 
 		} else {
 			try {
-				Files.write(certificatePath, certificateByteArray);
+				WriterUtils.byteArrayToFile(certificateByteArray, certificatePathString);
 			} catch (final Exception ignored) {
 			}
 		}
-		return certificatePath.toString();
+		return certificatePathString;
 	}
 
 	public static void configureSettingsCommon(

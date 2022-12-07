@@ -1,14 +1,12 @@
 package com.utils.io;
 
-import java.nio.file.Path;
-
 import com.utils.annotations.ApiMethod;
 import com.utils.log.Logger;
 
 public class CachedFile<
 		ObjectT> {
 
-	private Path filePath;
+	private String filePathString;
 	private long size;
 	private long lastModifiedTime;
 	private ObjectT dataObject;
@@ -21,46 +19,46 @@ public class CachedFile<
 
 	@ApiMethod
 	public void cache(
-			final Path filePath,
+			final String filePathString,
 			final ObjectT dataObject) {
 
 		try {
-			this.filePath = filePath;
-			size = IoUtils.fileSize(filePath);
-			lastModifiedTime = IoUtils.fileLastModifiedTime(filePath);
+			this.filePathString = filePathString;
+			size = FileSizeUtils.fileSize(filePathString);
+			lastModifiedTime = IoUtils.fileLastModifiedTime(filePathString);
 			this.dataObject = dataObject;
 
 		} catch (final Exception exc) {
-			Logger.printError("failed to cache file:" + System.lineSeparator() + filePath);
+			Logger.printError("failed to cache file:" + System.lineSeparator() + filePathString);
 			Logger.printException(exc);
 		}
 	}
 
 	@ApiMethod
 	public boolean isCached(
-			final Path filePath) {
+			final String filePathString) {
 
 		boolean cached = false;
 		try {
 			final boolean parseFile;
-			if (filePath == null) {
-				parseFile = this.filePath == null;
+			if (filePathString == null) {
+				parseFile = this.filePathString == null;
 			} else {
-				parseFile = filePath.equals(this.filePath);
+				parseFile = filePathString.equals(this.filePathString);
 			}
 			if (parseFile) {
 
-				final long size = IoUtils.fileSize(filePath);
+				final long size = FileSizeUtils.fileSize(filePathString);
 				if (this.size == size) {
 
-					final long lastModifiedTime = IoUtils.fileLastModifiedTime(filePath);
+					final long lastModifiedTime = IoUtils.fileLastModifiedTime(filePathString);
 					cached = this.lastModifiedTime == lastModifiedTime;
 				}
 			}
 
 		} catch (final Exception exc) {
 			Logger.printError("failed to check if file is cached:" +
-					System.lineSeparator() + filePath);
+					System.lineSeparator() + filePathString);
 			Logger.printException(exc);
 		}
 		return cached;

@@ -1,8 +1,5 @@
 package com.utils.io.zip;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,9 +16,7 @@ class ZipFileCreatorTest {
 		final boolean updateFileTimes = true;
 		final boolean verbose = true;
 
-		final Path srcFolderPath = Paths.get(srcFolderPathString);
-		final Path zipArchiveFilePath = Paths.get(zipArchiveFilePathString);
-		final ZipFileCreator zipFileCreator = new ZipFileCreator(srcFolderPath, zipArchiveFilePath,
+		final ZipFileCreator zipFileCreator = new ZipFileCreator(srcFolderPathString, zipArchiveFilePathString,
 				useTempFile, deleteExisting, threadCount, updateFileTimes, verbose);
 		zipFileCreator.work();
 		final boolean success = zipFileCreator.isSuccess();

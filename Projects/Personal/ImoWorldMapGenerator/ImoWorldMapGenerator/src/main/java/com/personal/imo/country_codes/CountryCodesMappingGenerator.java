@@ -1,10 +1,6 @@
 package com.personal.imo.country_codes;
 
-import java.io.BufferedOutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +8,8 @@ import java.util.Locale;
 
 import com.personal.imo.country_codes.mappings.CountryCodeMapping;
 import com.personal.imo.country_codes.mappings.FactoryCountryCodeMapping;
+import com.utils.io.PathUtils;
+import com.utils.io.StreamUtils;
 import com.utils.io.folder_creators.FactoryFolderCreator;
 import com.utils.log.Logger;
 
@@ -23,11 +21,11 @@ final class CountryCodesMappingGenerator {
 	public static void main(
 			final String[] args) {
 
-		final Path countryCodeMappingsFilePath = Paths.get("src", "main", "resources",
-				"com", "personal", "imo", "country_codes", "default_country_code_mapping.csv").toAbsolutePath();
+		final String countryCodeMappingsFilePathString = PathUtils.computePath("src", "main", "resources",
+				"com", "personal", "imo", "country_codes", "default_country_code_mapping.csv");
 
 		Logger.printProgress("generating Java country code mappings to:");
-		Logger.printLine(countryCodeMappingsFilePath);
+		Logger.printLine(countryCodeMappingsFilePathString);
 
 		final List<CountryCodeMapping> countryCodeMappingList = new ArrayList<>();
 		for (final String countryCode : Locale.getISOCountries()) {
@@ -43,11 +41,10 @@ final class CountryCodesMappingGenerator {
 		countryCodeMappingList.sort(Comparator.comparing(CountryCodeMapping::getCountryName));
 
 		final boolean success = FactoryFolderCreator.getInstance()
-				.createParentDirectories(countryCodeMappingsFilePath, true);
+				.createParentDirectories(countryCodeMappingsFilePathString, true);
 		if (success) {
 
-			try (PrintStream printStream = new PrintStream(
-					new BufferedOutputStream(Files.newOutputStream(countryCodeMappingsFilePath)))) {
+			try (final PrintStream printStream = StreamUtils.openPrintStream(countryCodeMappingsFilePathString)) {
 
 				for (final CountryCodeMapping countryCodeMapping : countryCodeMappingList) {
 					countryCodeMapping.writeToCsv(printStream);

@@ -1,8 +1,6 @@
 package com.utils.hash;
 
 import java.io.BufferedInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.Security;
 import java.util.ArrayList;
@@ -11,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.utils.io.IoUtils;
+import com.utils.io.StreamUtils;
 import com.utils.log.Logger;
 import com.utils.string.StrUtils;
 
@@ -28,20 +27,20 @@ public final class HashUtils {
 	}
 
 	public static String computeFileHash(
-			final Path filePath,
+			final String filePathString,
 			final String algorithm) {
 
 		String hash = null;
 		try {
-			if (!IoUtils.fileExists(filePath)) {
+			if (!IoUtils.fileExists(filePathString)) {
 				Logger.printWarning("cannot compute file hash, because the file does not exist:" +
-						System.lineSeparator() + filePath);
+						System.lineSeparator() + filePathString);
 
 			} else {
 				final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
 				final int bufferSize = 8192;
 				try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
-						Files.newInputStream(filePath), bufferSize)) {
+						StreamUtils.openInputStream(filePathString), bufferSize)) {
 
 					final byte[] buffer = new byte[bufferSize];
 					int length;
@@ -55,7 +54,7 @@ public final class HashUtils {
 
 		} catch (final Exception exc) {
 			Logger.printError("failed to compute hash of file:" +
-					System.lineSeparator() + filePath);
+					System.lineSeparator() + filePathString);
 			Logger.printException(exc);
 		}
 		return hash;
