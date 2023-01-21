@@ -58,9 +58,14 @@ abstract class AbstractDocumentOpener {
 			final SAXParseException exception) {
 
 		final Element documentElement = document.getDocumentElement();
-		final String schemaLocation = documentElement.getAttribute("xsi:noNamespaceSchemaLocation");
+		final String schemaLocation;
+		if (documentElement != null) {
+			schemaLocation = documentElement.getAttribute("xsi:noNamespaceSchemaLocation");
+		} else {
+			schemaLocation = null;
+		}
 		if (StringUtils.isBlank(schemaLocation)) {
-			Logger.printError("schema file location is not defined in the XML file!");
+			Logger.printError("schema file location is not defined in the XML file");
 
 		} else {
 			final String exceptionMessage = "LINE " + exception.getLineNumber() +

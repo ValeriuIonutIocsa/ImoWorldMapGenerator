@@ -172,7 +172,7 @@ public final class XmlDomUtils {
 		for (int i = nodeList.getLength() - 1; i >= 0; i--) {
 
 			final Node childNode = nodeList.item(i);
-			final short nodeType = childNode.getNodeType();
+			final int nodeType = childNode.getNodeType();
 			if (nodeType == Node.ELEMENT_NODE) {
 				processTextNodesRec(childNode);
 
@@ -312,7 +312,9 @@ public final class XmlDomUtils {
 
 			final List<Element> elementList = getElementsByTagName(parentElement, tagName);
 			for (final Element element : elementList) {
-				parentElement.removeChild(element);
+
+				final Node parentNode = element.getParentNode();
+				parentNode.removeChild(element);
 			}
 		}
 	}
